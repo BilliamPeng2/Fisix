@@ -1,0 +1,81 @@
+int xvsq()
+{
+    TFile *f = new TFile("pythia6.ep.dis.e10xp250.1000000.root");
+    TTree *MyTree;
+    MyTree = (TTree*)f->Get("tree"); //Create tree pointer
+    TCut electron_cut = "p.fKF == 11";
+TH2F *h2 = new TH2F("h2", "Q2 vs x", 80, -4, 0, 120, 0, 3); //TH2F 2D Histogram plot definition
+    TAxis *xaxis = h2->GetXaxis();
+    TAxis *yaxis = h2->GetYaxis(); //Define functions to label axis
+    int xbins = xaxis->GetNbins();
+    int ybins = yaxis->GetNbins();
+    
+    Axis_t xmin = xaxis->GetXmin();
+    Axis_t xmax = xaxis->GetXmax();
+    Axis_t xwidth = (xmax - xmin ) / xbins;
+    Axis_t *new_xbins = new Axis_t[xbins + 1];
+    
+    for( int i =0; i <= xbins; i++)
+    {
+        new_xbins[i] = TMath::Power(10, xmin + i*xwidth);
+    }
+    xaxis->Set(xbins, new_xbins);
+    
+    Axis_t ymin = yaxis->GetXmin();
+    Axis_t ymax = yaxis->GetXmax();
+    Axis_t ywidth = (ymax - ymin) / ybins;
+    Axis_t *new_ybins = new Axis_t[ybins + 1];
+    
+    for( int i2 =0; i2 <= ybins; i2++)
+    {
+        new_ybins[i2] = TMath::Power(10, ymin + i2*ywidth);
+    }
+  
+    yaxis->Set(ybins, new_ybins);
+    TCanvas *myCanvas = new TCanvas();        
+    myCanvas->SetLogx();                                             myCanvas->SetLogy();
+    MyTree->Draw("Q2:x >> h2", electron_cut, "colz"); //Drawing Q2 vs x using 2D histogram function
+    xaxis->SetTitle("x");
+    yaxis->SetTitle("Q^{2} [GeV^{2}]"); //Setting axis labels
+  
+    
+    TF1 *f_JetA_100 = new TF1("f_JetA_100" ,"(4 * (x**2)*([1]**2)*[0]*(1-cos([2]))) / (cos([2]) * ([0] -x*[1]) + [0] + x*[1])" , 10e-6, 1);
+    f_JetA_100->SetParameter( 0 , 10);
+    f_JetA_100->SetParameter( 1 , 250.);
+    f_JetA_100->SetParameter( 2 , (100 * TMath::Pi())/180 );
+    TF1 *f_JetA_50 = (TF1*)f_JetA_100->Clone("f_JetA_50");
+    f_JetA_50->SetParameter( 2 , (50 * TMath::Pi())/180 );
+    TF1 *f_JetA_5 = (TF1*)f_JetA_100->Clone("f_JetA_5");
+    f_JetA_5->SetParameter( 2 , (5 * TMath::Pi())/180 );
+    //TF1 *f_JetA_10 = (TF1*)f_JetA_100->Clone("f_JetA_10");
+    //f_JetA_10->SetParameter( 2 , (10 * TMath::Pi())/180 );
+    
+    f_JetA_100->Draw("SAME");
+    f_JetA_100->SetLineColor(1);
+    f_JetA_50->Draw("SAME");
+    f_JetA_50->SetLineColor(1);
+    f_JetA_5->Draw("SAME");
+    f_JetA_5->SetLineColor(1);
+    //f_JetA_10->Draw("SAME");
+    //f_JetA_10->SetLineColor(1);*/
+      /**TF1 *f_y1 = new TF1("f_y1", "4*x*[0]*[1]*[2]", 10e-5, 1);
+    f_y1->SetParameter( 0, 10);
+    f_y1->SetParameter( 1, 250);
+    f_y1->SetParameter( 2, .99);
+    TF1 *f_y01 = (TF1*)f_y1->Clone("f_y01");
+    f_y01->SetParameter(2 , 0.9);
+    TF1 *f_y001 = (TF1*)f_y1->Clone("f_y001");
+    f_y001->SetParameter(2, 0.1);
+    TF1 *f_y0001 = (TF1*)f_y1->Clone("f_y0001");
+    f_y0001->SetParameter(2 , 0.01);
+
+    f_y1->Draw("SAME");
+    f_y1->SetLineColor(1);
+    f_y01->Draw("SAME");
+    f_y01->SetLineColor(11);
+    f_y001->Draw("SAME");
+    f_y001->SetLineColor(21);
+    f_y0001->Draw("SAME");
+    f_y0001->SetLineColor(31);*/
+    return 0;
+}
